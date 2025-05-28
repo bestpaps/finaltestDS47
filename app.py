@@ -17,13 +17,13 @@ from nltk.tokenize import word_tokenize
 
 try:
     nltk.data.find('tokenizers/punkt')
-except nltk.downloader.DownloadError:
-    nltk.download('punkt', quiet=True) # Tambahkan quiet=True agar tidak ada output di konsol Streamlit
+except LookupError: # Menangkap LookupError yang lebih umum
+    nltk.download('punkt', quiet=True)
 
 try:
     nltk.data.find('corpora/stopwords')
-except nltk.downloader.DownloadError:
-    nltk.download('stopwords', quiet=True) # Tambahkan quiet=True
+except LookupError: # Menangkap LookupError yang lebih umum
+    nltk.download('stopwords', quiet=True)
     
 # --- Fungsi Preprocessing
 def preprocess_text_streamlit(text):
