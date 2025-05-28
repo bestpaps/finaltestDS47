@@ -15,6 +15,16 @@ import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+try:
+    nltk.data.find('tokenizers/punkt')
+except nltk.downloader.DownloadError:
+    nltk.download('punkt', quiet=True) # Tambahkan quiet=True agar tidak ada output di konsol Streamlit
+
+try:
+    nltk.data.find('corpora/stopwords')
+except nltk.downloader.DownloadError:
+    nltk.download('stopwords', quiet=True) # Tambahkan quiet=True
+    
 # --- Fungsi Preprocessing
 def preprocess_text_streamlit(text):
     # Hapus URL
