@@ -12,19 +12,16 @@ import pandas as pd
 import joblib
 import nltk
 import re
+import os
+
+# Tambahkan path ke data NLTK lokal
+nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+if nltk_data_path not in nltk.data.path:
+    nltk.data.path.append(nltk_data_path)
+    
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError: # Menangkap LookupError yang lebih umum
-    nltk.download('punkt', quiet=True)
-
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError: # Menangkap LookupError yang lebih umum
-    nltk.download('stopwords', quiet=True)
-    
+  
 # --- Fungsi Preprocessing
 def preprocess_text_streamlit(text):
     # Hapus URL
