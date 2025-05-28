@@ -14,13 +14,43 @@ import nltk
 import re
 import os
 
+# --- DEBUGGING: Cek isi direktori saat ini dan path NLTK ---
+st.write(f"Direktori kerja saat ini: {os.getcwd()}")
+st.write(f"Isi direktori kerja saat ini: {os.listdir('.')}") # Daftar file dan folder di root
+
+# Tambahkan path ke data NLTK lokal
 nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+st.write(f"Path yang dihitung untuk nltk_data: {nltk_data_path}")
+
+if os.path.exists(nltk_data_path):
+    st.write(f"Folder nltk_data ditemukan di: {nltk_data_path}")
+    st.write(f"Isi folder nltk_data: {os.listdir(nltk_data_path)}")
+    if os.path.exists(os.path.join(nltk_data_path, 'tokenizers')):
+        st.write(f"Folder tokenizers ditemukan di dalam nltk_data.")
+        st.write(f"Isi folder tokenizers: {os.listdir(os.path.join(nltk_data_path, 'tokenizers'))}")
+        if os.path.exists(os.path.join(nltk_data_path, 'tokenizers', 'punkt')):
+            st.write(f"Folder punkt ditemukan di dalam tokenizers.")
+            st.write(f"Isi folder punkt: {os.listdir(os.path.join(nltk_data_path, 'tokenizers', 'punkt'))}")
+        else:
+            st.warning("Folder 'punkt' TIDAK DITEMUKAN di dalam 'nltk_data/tokenizers/'")
+    else:
+        st.warning("Folder 'tokenizers' TIDAK DITEMUKAN di dalam 'nltk_data'")
+else:
+    st.error(f"Folder nltk_data TIDAK DITEMUKAN di path: {nltk_data_path}")
+
 if nltk_data_path not in nltk.data.path:
     nltk.data.path.append(nltk_data_path)
-    
+    st.write(f"Path {nltk_data_path} ditambahkan ke nltk.data.path")
+
+st.write(f"NLTK data path setelah modifikasi: {nltk.data.path}")
+# --- AKHIR DEBUGGING ---
+
+# Sekarang baru import modul NLTK yang membutuhkan data tersebut
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-  
+# Jika Anda menggunakan stemming di Colab, uncomment baris berikut dan pastikan PorterStemmer diimpor
+# from nltk.stem import PorterStemmer
+
 # --- Fungsi Preprocessing
 def preprocess_text_streamlit(text):
     # Hapus URL
@@ -37,22 +67,34 @@ def preprocess_text_streamlit(text):
     # tokens = [stemmer.stem(word) for word in tokens]
     return " ".join(tokens)
 
-# --- Memuat Model, Vectorizer, dan Pemetaan Label
-@st.cache_data() # Gunakan st.cache_data untuk caching
-def load_resources():
+# --- Memuat Model dan Vectorizer ---
+@st.cache_resource # Menggunakan st.cache_resource untuk model dan vectorizer
+def load_model_and_vectorizer():
     try:
         model = joblib.load('sentiment_model.pkl')
         vectorizer = joblib.load('tfidf_vectorizer.pkl')
-        reverse_label_map = joblib.load('reverse_label_map.pkl') # Muat pemetaan label
-        return model, vectorizer, reverse_label_map
+        return model, vectorizer
     except FileNotFoundError:
-        st.error("File model, vectorizer, atau label_map tidak ditemukan. Pastikan semuanya ada di direktori yang sama.")
-        return None, None, None
+        st.error("File model atau vectorizer tidak ditemukan. Pastikan 'sentiment_model.pkl' dan 'tfidf_vectorizer.pkl' berada di direktori yang sama dengan app.py.")
+        return None, None
     except Exception as e:
-        st.error(f"Terjadi kesalahan saat memuat resource: {e}")
-        return None, None, None
+        st.error(f"Terjadi kesalahan saat memuat model: {e}")
+        return None, None
 
-model, vectorizer, reverse_label_map = load_resources()
+@st.cache_data # Menggunakan st.cache_data untuk data yang jarang berubah
+def load_label_map():
+    try:
+        reverse_label_map = joblib.load('reverse_label_map.pkl') # Muat pemetaan label
+        return reverse_label_map
+    except FileNotFoundError:
+        st.error("File reverse_label_map.pkl tidak ditemukan.")
+        return None
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat memuat pemetaan label: {e}")
+        return None
+
+model, vectorizer = load_model_and_vectorizer()
+reverse_label_map = load_label_map()
 
 # --- Antarmuka Pengguna Streamlit ---
 st.title("Analisis Sentimen Tweet")
