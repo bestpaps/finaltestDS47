@@ -15,32 +15,27 @@ import re
 import os
 
 # --- DEBUGGING: Cek isi direktori saat ini dan path NLTK ---
-st.write(f"Direktori kerja saat ini: {os.getcwd()}")
-st.write(f"Isi direktori kerja saat ini: {os.listdir('.')}") # Daftar file dan folder di root
+st.write(f"Direktori kerja saat ini (os.getcwd()): {os.getcwd()}")
+st.write(f"Isi direktori kerja saat ini (os.listdir('.')): {os.listdir('.')}")
 
-# Tambahkan path ke data NLTK lokal
-nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+# --- BARIS YANG DIUBAH ---
+# Gunakan path absolut berdasarkan direktori kerja saat ini
+nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
+# -------------------------
+
 st.write(f"Path yang dihitung untuk nltk_data: {nltk_data_path}")
 
 if os.path.exists(nltk_data_path):
     st.write(f"Folder nltk_data ditemukan di: {nltk_data_path}")
-    st.write(f"Isi folder nltk_data: {os.listdir(nltk_data_path)}")
-    if os.path.exists(os.path.join(nltk_data_path, 'tokenizers')):
-        st.write(f"Folder tokenizers ditemukan di dalam nltk_data.")
-        st.write(f"Isi folder tokenizers: {os.listdir(os.path.join(nltk_data_path, 'tokenizers'))}")
-        if os.path.exists(os.path.join(nltk_data_path, 'tokenizers', 'punkt')):
-            st.write(f"Folder punkt ditemukan di dalam tokenizers.")
-            st.write(f"Isi folder punkt: {os.listdir(os.path.join(nltk_data_path, 'tokenizers', 'punkt'))}")
-        else:
-            st.warning("Folder 'punkt' TIDAK DITEMUKAN di dalam 'nltk_data/tokenizers/'")
-    else:
-        st.warning("Folder 'tokenizers' TIDAK DITEMUKAN di dalam 'nltk_data'")
+    # ... (sisa kode debugging Anda bisa tetap ada untuk sementara)
 else:
     st.error(f"Folder nltk_data TIDAK DITEMUKAN di path: {nltk_data_path}")
 
 if nltk_data_path not in nltk.data.path:
-    nltk.data.path.append(nltk_data_path)
+    nltk.data.path.insert(0, nltk_data_path) # Coba masukkan ke awal list
     st.write(f"Path {nltk_data_path} ditambahkan ke nltk.data.path")
+else:
+    st.write(f"Path {nltk_data_path} sudah ada di nltk.data.path")
 
 st.write(f"NLTK data path setelah modifikasi: {nltk.data.path}")
 # --- AKHIR DEBUGGING ---
