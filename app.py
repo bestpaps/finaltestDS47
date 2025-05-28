@@ -76,7 +76,7 @@ if st.button("Analisis Sentimen"):
 
             if hasattr(model, "predict_proba"):
                 st.subheader("Probabilitas Sentimen:")
-                    for i, class_label_index in enumerate(model.classes_):
+                for i, class_label_index in enumerate(model.classes_):
                     class_name = reverse_label_map.get(class_label_index, f"Kelas {class_label_index}")
                     st.write(f"{class_name}: {prediction_proba[0][i]:.2f}")
         else:
